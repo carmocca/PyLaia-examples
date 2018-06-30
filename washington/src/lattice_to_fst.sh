@@ -8,7 +8,7 @@ beam=inf;
 graph_scale=1;
 model="";
 help_message="
-Usage: ${0##*/} <query_list> <distractor_list> <ark> [<ark> ...] <output_scp>
+Usage: ${0##*/} <ark> [<ark> ...] <output_scp>
 
 Options:
   --acoustic_scale    : (type = float, value = $acoustic_scale)
@@ -18,15 +18,7 @@ Options:
                         Model to extract the characters from the lattice.
 ";
 source "$SDIR/../../utils/parse_options.inc.sh" || exit 1;
-[ $# -lt 4 ] && echo "$help_message" >&2 && exit 1;
-
-
-for f in "$1" "$2"; do
-  [ ! -f "$f" ] && echo "ERROR: File \"$f\" does not exist!" >&2 && exit 1;
-done;
-qlist="$1";
-dlist="$2";
-shift 2;
+[ $# -lt 2 ] && echo "$help_message" >&2 && exit 1;
 
 files=();
 while [ $# -gt 1 ]; do
@@ -91,11 +83,3 @@ fi |
 lattice-to-fst \
   --acoustic-scale="$acoustic_scale" --lm-scale="$graph_scale" \
   ark:- "ark,scp:$oark,$oscp";
-
-join -1 1 \
-  <(cut -d\  -f1 "$qlist" | sort) \
-  <(sort "$oscp") > "$qscp";
-
-join -1 1 \
-  <(cut -d\  -f1 "$dlist" | sort) \
-  <(sort "$oscp") > "$dscp";

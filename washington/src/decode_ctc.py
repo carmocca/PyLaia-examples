@@ -5,25 +5,13 @@ from __future__ import print_function
 import argparse
 
 import torch
-from dortmund_utils import build_ctc_model
+from egs.washington.src.python.dortmund_utils import build_ctc_model
 from laia.data import ImageDataLoader
 from laia.data import TextImageFromTextTableDataset
-from laia.plugins.arguments import add_argument, add_defaults, args
+from laia.decoders import CTCGreedyDecoder
+from laia.common.arguments import add_argument, add_defaults, args
 from laia.utils import ImageToTensor, TextToTensor
 from laia.utils.symbols_table import SymbolsTable
-
-
-def ctc_lattice(img_ids, outputs, fileout):
-    for img_id, output in zip(img_ids, outputs):
-        output = output.cpu()
-        print(img_id, file=fileout)
-        for t in range(output.size(0)):
-            for k in range(output.size(1)):
-                print('{:d}\t{:d}\t{:d}\t0,{:.10g},{:d}'.format(
-                    t, t + 1, k + 1, -float(output[t, k]), k + 1),
-                    file=fileout)
-        print(output.size(0), file=fileout)
-        print('', file=fileout)
 
 
 if __name__ == '__main__':
@@ -34,6 +22,7 @@ if __name__ == '__main__':
     add_argument('--lstm_hidden_size', type=int, default=128)
     add_argument('--lstm_num_layers', type=int, default=1)
     add_argument('--add_softmax', action='store_true')
+    add_argument('--add_boundary_blank', action='store_true')
     add_argument('syms', help='Symbols table mapping from strings to integers')
     add_argument('img_dir', help='Directory containing word images')
     add_argument('gt_file', help='')
@@ -71,6 +60,7 @@ if __name__ == '__main__':
                                      image_channels=1,
                                      num_workers=8)
 
+    decoder = CTCGreedyDecoder()
     with torch.cuda.device(args.gpu - 1):
         for batch in dataset_loader:
             if args.gpu > 0:
@@ -80,4 +70,6 @@ if __name__ == '__main__':
             y = model(torch.autograd.Variable(x)).data
             if args.add_softmax:
                 y = torch.nn.functional.log_softmax(y, dim=-1)
-            ctc_lattice(batch['id'], [y], args.output)
+
+            batch_decode = decoder(y)
+            print(imgid + ' ' + str(out))
