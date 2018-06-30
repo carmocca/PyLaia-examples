@@ -1,20 +1,21 @@
-#!/usr/bin/env python
-
-from argparse import FileType
-
-import numpy as np
-import torch
-from scipy.spatial.distance import cdist, pdist
-from torch.autograd import Variable
-from torch.utils.data import DataLoader
-from tqdm import tqdm
+from __future__ import print_function
+import argparse
+from collections import Counter
 
 import laia
 import laia.common.logging as log
+import numpy as np
+import torch
 from dortmund_utils import build_dortmund_model
 from laia.data import TextImageFromTextTableDataset
+from laia.meters.pairwise_average_precision_meter import \
+    PairwiseAveragePrecisionMeter
 from laia.common.arguments import add_argument, add_defaults, args
 from laia.utils import ImageToTensor
+from scipy.spatial.distance import pdist
+from torch.autograd import Variable
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 if __name__ == '__main__':
     add_defaults('gpu')
@@ -22,10 +23,10 @@ if __name__ == '__main__':
                  help='PHOC levels used to encode the transcript')
     add_argument('syms', help='Symbols table mapping from strings to integers')
     add_argument('img_dir', help='Directory containing word images')
-    add_argument('query_set', help='Transcription of each query image')
-    add_argument('test_set', help='Transcription of each test image')
+    add_argument('gt_txt', help='Transcription of each image')
     add_argument('model_checkpoint', help='Filepath of the model checkpoint')
-    add_argument('output', type=FileType('w'), help='Output file')
+    add_argument('output', type=argparse.FileType('w'),
+                 help='Filepath of the output file')
     args = args()
 
     syms = laia.utils.SymbolsTable(args.syms)
@@ -37,6 +38,9 @@ if __name__ == '__main__':
     model = model.cuda(args.gpu - 1) if args.gpu > 0 else model.cpu()
     model.eval()
 
+    dataset = TextImageFromTextTableDataset(
+        args.gt_txt, args.img_dir, img_transform=ImageToTensor())
+    loader = DataLoader(dataset)
 
     def process_image(sample):
         sample = Variable(sample, requires_grad=False)
@@ -44,24 +48,10 @@ if __name__ == '__main__':
         phoc = torch.nn.functional.sigmoid(model(sample))
         return phoc.data.cpu().numpy()
 
-
-    def process_dataset(filename):
-        dataset = TextImageFromTextTableDataset(
-            filename, args.img_dir, img_transform=ImageToTensor())
-        data_loader = DataLoader(dataset)
-        phocs = []
-        samples = []
-        for sample in tqdm(data_loader):
-            phocs.append(process_image(sample['img']))
-            samples.append(sample['id'][0])
-        return np.concatenate(phocs), samples
-
-
-    # Process queries
-    query_phocs, query_ids = process_dataset(args.query_set)
-    test_phocs, test_ids = process_dataset(args.test_set)
-
-    distances = cdist(query_phocs, test_phocs, 'braycurtis')
-    for i, qid in enumerate(query_ids):
-        for j, tid in enumerate(test_ids):
-            args.output.write('{} {} {}\n'.format(qid, tid, distances[i][j]))
+    # Predict PHOC vectors
+    for query in tqdm(loader):
+        phoc = process_image(query['img'])
+        print(query['id'][0], file=args.output, end='')
+        for j in range(phoc.shape[1]):
+          print(' %.12g' % phoc[0, j], file=args.output, end='')
+        print('', file=args.output)
