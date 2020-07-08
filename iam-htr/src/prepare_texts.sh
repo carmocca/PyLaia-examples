@@ -102,7 +102,7 @@ function join_lines () {
 
 
 # Split IAM into different test/train/valid files.
-for s in graves pham puigcerver; do
+for s in puigcerver; do
   for u in char word; do
     # Prepare line transcripts.
     odir="data/lang/$s/lines/$u";

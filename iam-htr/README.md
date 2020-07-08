@@ -76,18 +76,15 @@ aspect ratio.
 You will also need to process the ground-truth in order to train the neural
 network.
 
-We will use (what we call) Aachen's partition of the dataset. Each set of
+We will use our partition of the dataset. Each set of
 this partition has the following statistics:
 
 - Train: 6161 lines from 747 forms.
 - Validation: 966 lines from 115 forms.
 - Test: 2915 lines from 336 forms.
 
-This is not the official partition of the dataset, but it is widely used
-for HTR experiments.
-
 ```bash
-./src/prepare_iam_text.sh;
+./src/prepare_texts.sh;
 ```
 
 The ground-truth is processed in several ways to fix some of its
@@ -119,7 +116,7 @@ of the paper. Summarizing, the model consists of:
 
 
 ```bash
-./src/train.sh;
+./src/train_puigcerver17.sh;
 ```
 
 This script will create several files in the `train` directory. If you are
