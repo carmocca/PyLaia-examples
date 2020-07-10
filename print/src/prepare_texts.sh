@@ -10,7 +10,7 @@ exit 1;
 source "../utils/functions_check.inc.sh" || exit 1;
 check_all_programs cut gawk sed sort tr || exit 1;
 
-wspace="@";
+wspace="<space>";
 help_message="
 Usage: ${0##*/} [options]
 
@@ -19,6 +19,16 @@ Options:
                  Use this symbol to represent the whitespace character.
 ";
 source "../utils/parse_options.inc.sh" || exit 1;
+
+for set in tr va te; do
+  wo="data/lang/word/${set}.txt";
+  # Strip whitespace
+  gawk -i inplace '{$1=$1;print}' "${wo}";
+  # Delete empty images
+  gawk 'NF <= 1' "${wo}" | xargs -I{} find "data/imgs/lines/${set}" -name {}.png -delete;
+  # Clean lang/words
+  gawk -i inplace 'NF > 1' "${wo}";
+done
 
 # Prepare character-level transcripts.
 mkdir -p "data/lang/char";
@@ -38,5 +48,11 @@ for set in tr va te; do
 done
 
 # Join sets
-cat "data/lang/word/{tr,va,te}.txt" > "data/lang/word/all.txt";
-cat "data/lang/char/{tr,va,te}.txt" > "data/lang/word/all.txt";
+cat data/lang/word/{tr,va,te}.txt > "data/lang/word/all.txt";
+cat data/lang/char/{tr,va,te}.txt > "data/lang/char/all.txt";
+
+# Create syms file
+cut -d\  -f2- data/lang/char/{tr,va}.txt |
+  tr \  \\n |
+  sort -u |
+  gawk 'BEGIN{ print "<ctc>", 0; }{ print $1, NR; }' > "data/lang/syms.txt";
