@@ -25,15 +25,16 @@ for i in $(seq ${#set_dir[@]}); do
   # Find all images
   find "$data_dir" -type f \( -iname \*.jpg -o -iname \*.tif \) |
   while read img; do
-    echo "Extracting lines from ${img}...";
-    # Extract lines
-    if "$HOME"/software/pageLineExtractor/page_format_tool \
+    echo "Processing ${img}...";
+    # Fix contours
+    "$HOME"/software/pageLineExtractor/page_format_tool \
       -i "$img" \
-      -l "$data_dir"/page/"$(basename "${img%.*}")".xml -m FILE; then
+      -l "$data_dir"/page/"$(basename "${img%.*}")".xml -m FIX;
+    # Extract lines
+    "$HOME"/software/pageLineExtractor/page_format_tool \
+      -i "$img" \
+      -l "$data_dir"/page/"$(basename "${img%.*}")".xml -m FILE;
       mv -f "$data_dir"/page/*.png "$img_dir";
-    else
-      echo "Failed to process $img";
-    fi
   done
   # Join .txts into one file
   mkdir -p data/lang/word;
