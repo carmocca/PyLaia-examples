@@ -26,7 +26,7 @@ for set in tr va te; do
   gawk -i inplace '{$1=$1;print}' "${wo}";
   # Delete empty images
   gawk 'NF <= 1' "${wo}" | xargs -I{} find "data/imgs/lines/${set}" -name {}.png -delete;
-  # Clean lang/words
+  # Delete empty transcriptions
   gawk -i inplace 'NF > 1' "${wo}";
 done
 

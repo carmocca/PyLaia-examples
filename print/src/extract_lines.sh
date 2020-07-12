@@ -23,6 +23,7 @@ for i in $(seq ${#set_dir[@]}); do
   img_dir=data/imgs/lines/"${set_name[i-1]}";
   mkdir -p "$img_dir";
   # Find all images
+  set +e; # pageLineExtractor might segfault
   find "$data_dir" -type f \( -iname \*.jpg -o -iname \*.tif \) |
   while read img; do
     echo "Processing ${img}...";
@@ -36,6 +37,7 @@ for i in $(seq ${#set_dir[@]}); do
       -l "$data_dir"/page/"$(basename "${img%.*}")".xml -m FILE;
       mv -f "$data_dir"/page/*.png "$img_dir";
   done
+  set -e;
   # Join .txts into one file
   mkdir -p data/lang/word;
   f=data/lang/word/"${set_name[i-1]}".txt
