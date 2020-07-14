@@ -40,7 +40,7 @@ for i in $(seq ${#set_dir[@]}); do
   set -e;
   # Join .txts into one file
   mkdir -p data/lang/word;
-  f=data/lang/word/"${set_name[i-1]}".txt
+  f=data/lang/word/"${set_name[i-1]}".gt
   rm -f "$f";
   find "$data_dir"/page -type f \( -iname \*.txt \) |
   while read txt; do

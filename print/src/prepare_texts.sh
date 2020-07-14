@@ -21,7 +21,7 @@ Options:
 source "../utils/parse_options.inc.sh" || exit 1;
 
 for set in tr va te; do
-  wo="data/lang/word/${set}.txt";
+  wo="data/lang/word/${set}.gt";
   # Strip whitespace
   gawk -i inplace '{$1=$1;print}' "${wo}";
   # Delete empty images
@@ -33,8 +33,8 @@ done
 # Prepare character-level transcripts.
 mkdir -p "data/lang/char";
 for set in tr va te; do
-  wo="data/lang/word/${set}.txt";
-  ch="data/lang/char/${set}.txt"
+  wo="data/lang/word/${set}.gt";
+  ch="data/lang/char/${set}.gt"
   gawk -v ws="$wspace" '{
   printf("%s", $1);
   for(i=2;i<=NF;++i) {
@@ -48,11 +48,11 @@ for set in tr va te; do
 done
 
 # Join sets
-cat data/lang/word/{tr,va,te}.txt > "data/lang/word/all.txt";
-cat data/lang/char/{tr,va,te}.txt > "data/lang/char/all.txt";
+cat data/lang/word/{tr,va,te}.gt > "data/lang/word/all.gt";
+cat data/lang/char/{tr,va,te}.gt > "data/lang/char/all.gt";
 
 # Create syms file
-cut -d\  -f2- data/lang/char/{tr,va}.txt |
+cut -d\  -f2- data/lang/char/{tr,va}.gt |
   tr \  \\n |
   sort -u |
   gawk 'BEGIN{ print "<ctc>", 0; }{ print $1, NR; }' > "data/lang/syms.txt";

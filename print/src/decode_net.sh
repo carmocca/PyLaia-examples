@@ -35,15 +35,14 @@ if [ $gpu -gt 0 ]; then
   gpu=1;
 fi;
 
-for f in data/lang/{char,word}/{te,va}.txt data/lang/syms.txt "$exper_path"/model; do
+for f in data/lang/{char,word}/{te,va}.gt data/lang/syms.txt "$exper_path"/model; do
   [ ! -s "$f" ] && echo "ERROR: File \"$f\" does not exist!" >&2 && exit 1;
 done;
 
 mkdir -p decode/{char,word};
 
 for p in va te; do
-  char="decode/char/${p}.txt";
-  word="decode/word/${p}.txt";
+  ch="decode/char/${p}.hyp";
   find data/imgs/lines/$p -type f \( -iname \*.png \) > decode/${p}_list.txt;
 
   # Decode lines
@@ -54,11 +53,28 @@ for p in va te; do
     --join_str=" " \
     --gpu $gpu \
     --batch_size $batch_size \
-    --checkpoint $checkpoint \
-    --use_letters | sort -V > "$char";
+    --checkpoint "$checkpoint" \
+    --use_letters | sort -V > "$ch";
   # Note: The decoding step does not return the output
   # In the same order as the input unless batch size 1
   # is used. Sort must be done afterwards
+
+  # Clean hyp file. Remove paths from ids
+  rm -f tmp.txt
+  while read line; do
+    id=$(echo "$line" | awk '{ print $1 }' | xargs -I{} basename {} .png);
+    hyp=$(echo "$line" | awk '{for (i=2; i<NF; i++) printf $i " "; print $NF}');
+    echo "${id}" "${hyp}" >> tmp.txt;
+  done < "$ch";
+  mv tmp.txt "$ch";
+
+  # Sort by gt id
+  rm -f tmp.txt;
+  while read line; do
+    id=$(echo $line | awk '{ print $1 }');
+    grep "$id" "$ch" >> tmp.txt
+  done < "data/lang/char/${p}.gt";
+  mv tmp.txt "$ch";
 
   # Get word-level transcript hypotheses for lines
   gawk '{
@@ -70,5 +86,5 @@ for p in va te; do
         printf("%s", $i);
     }
     printf("\n");
-  }' "$char" > "$word";
+  }' "$ch" > "decode/word/${p}.hyp";
 done;

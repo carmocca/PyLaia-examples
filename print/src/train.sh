@@ -137,8 +137,8 @@ pylaia-htr-create-model \
 pylaia-htr-train-ctc \
   "data/lang/syms.txt" \
   $img_directories \
-  data/lang/char/tr.txt \
-  data/lang/char/va.txt \
+  data/lang/char/tr.gt \
+  data/lang/char/va.gt \
   --batch_size "$batch_size" \
   --checkpoint "$checkpoint" \
   --delimiters "<space>" \
