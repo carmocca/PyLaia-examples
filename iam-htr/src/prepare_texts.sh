@@ -5,7 +5,7 @@ set -e;
 source "../utils/functions_check.inc.sh" || exit 1;
 
 overwrite=false;
-wspace="@";
+wspace="<space>";
 help_message="
 Usage: ${0##*/} [options]
 

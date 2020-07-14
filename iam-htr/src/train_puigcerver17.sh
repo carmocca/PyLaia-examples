@@ -24,7 +24,6 @@ rnn_layers=5;
 adaptive_pooling="avgpool-16";
 fixed_height=128;
 # Trainer parameters
-add_logsoftmax_to_loss=true;
 batch_size=10;
 checkpoint="ckpt.lowest-valid-cer*";
 early_stop_epochs=20;
@@ -35,14 +34,11 @@ num_rolling_checkpoints=3;
 save_checkpoint_interval=10;
 seed=0x12345;
 show_progress_bar=true;
-use_baidu_ctc=false;
 use_distortions=false;
 help_message="
 Usage: ${0##*/} [options]
 
 Options:
-  --add_logsoftmax_to_loss   : (type = boolean, default = $add_logsoftmax_to_loss)
-                               If true, add a logsoftmax operation to the CTC loss.
   --adaptive_pooling         : (type = string, default = $adaptive_pooling)
                                Type of adaptive pooling to use, format:
                                {none,maxpool,avgpool}-[0-9]+
@@ -82,8 +78,6 @@ Options:
                                Batch size for training.
   --learning_rate            : (type = float, default = $learning_rate)
                                Learning rate from RMSProp.
-  --use_baidu_ctc            : (type = boolean, default = $use_baidu_ctc)
-                               If true, use Baidu's CTC implementation.
   --gpu                      : (type = integer, default = $gpu)
                                Select which GPU to use, index starts from 1.
                                Set to 0 for CPU.
@@ -154,10 +148,9 @@ pylaia-htr-train-ctc \
   $img_directories \
   data/lang/puigcerver/lines/char/tr.txt \
   data/lang/puigcerver/lines/char/va.txt \
-  --add_logsoftmax_to_loss "$add_logsoftmax_to_loss" \
   --batch_size "$batch_size" \
   --checkpoint "$checkpoint" \
-  --delimiters "@" \
+  --delimiters "<space>" \
   --gpu "$gpu" \
   --learning_rate "$learning_rate" \
   --logging_also_to_stderr INFO \
@@ -167,7 +160,6 @@ pylaia-htr-train-ctc \
   --save_checkpoint_interval "$save_checkpoint_interval" \
   --show_progress_bar "$show_progress_bar" \
   --train_path "$exper_path" \
-  --use_baidu_ctc "$use_baidu_ctc" \
   --use_distortions "$use_distortions" \
   --seed "$seed";
 
