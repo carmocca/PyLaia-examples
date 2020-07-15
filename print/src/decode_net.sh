@@ -68,11 +68,11 @@ for p in va te; do
   done < "$ch";
   mv tmp.txt "$ch";
 
-  # Sort by gt id
+  # Sort by ground truth id
   rm -f tmp.txt;
   while read line; do
-    id=$(echo $line | awk '{ print $1 }');
-    grep "$id" "$ch" >> tmp.txt
+    id=$(echo "$line" | awk '{ print $1 }');
+    grep -m1 "$id" "$ch" >> tmp.txt
   done < "data/lang/char/${p}.gt";
   mv tmp.txt "$ch";
 
