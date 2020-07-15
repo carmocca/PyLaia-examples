@@ -44,7 +44,6 @@ for i in $(seq ${#set_dir[@]}); do
   rm -f "$f";
   find "$data_dir"/page -type f \( -iname \*.txt \) |
   while read txt; do
-    echo "$txt $(basename "${txt%.*}") $(cat "$txt")";
     echo "$(basename "${txt%.*}") $(cat "$txt")" >> "$f";
     rm "$txt";
   done

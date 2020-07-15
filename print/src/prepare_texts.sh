@@ -28,6 +28,8 @@ for set in tr va te; do
   gawk 'NF <= 1' "${wo}" | xargs -I{} find "data/imgs/lines/${set}" -name {}.png -delete;
   # Delete empty transcriptions
   gawk -i inplace 'NF > 1' "${wo}";
+  # Sort inplace by id
+  sort -k1 "${wo}" -o "${wo}";
 done
 
 # Prepare character-level transcripts.
@@ -46,10 +48,6 @@ for set in tr va te; do
   printf("\n");
   }' "${wo}" | sort -k1 > "${ch}" || { echo "ERROR: Creating file \"${ch}\"!" >&2; exit 1; }
 done
-
-# Join sets
-cat data/lang/word/{tr,va,te}.gt > "data/lang/word/all.gt";
-cat data/lang/char/{tr,va,te}.gt > "data/lang/char/all.gt";
 
 # Create syms file
 cut -d\  -f2- data/lang/char/{tr,va}.gt |
