@@ -12,4 +12,4 @@ done
 
 # 4x3px image "Seite 34. Nr. 148."
 rm -f data/imgs/lines/tr/ONB_ibn_19110701_034.r_4_1.tl_3.png;
-sed -i '/^ONB_ibn_19110701_034\.r_4_1\.tl_3\.png/d' data/lang/word/tr.txt;
+sed -i '/^ONB_ibn_19110701_034\.r_4_1\.tl_3\.png/d' data/lang/char/tr.gt;
