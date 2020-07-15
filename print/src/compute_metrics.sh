@@ -29,14 +29,14 @@ for i in char word; do
       eu.transkribus.errorrate.HtrErrorTxt \
       tmp.gt tmp.hyp | \
     grep ERR | \
-    gawk -F= '{ print "Transkribus CER: " $2 }' | \
+    gawk -F= '{ printf "Transkribus CER: %.3f\n", $2 * 100 }' | \
     tee -a decode/decode.out;
 
     java -cp $HOME/software/TranskribusErrorRate/target/TranskribusErrorRate-2.2.7-jar-with-dependencies.jar \
       eu.transkribus.errorrate.HtrErrorTxt \
       tmp.gt tmp.hyp --wer | \
     grep ERR | \
-    gawk -F= '{ print "Transkribus WER: " $2 "\n" }' | \
+    gawk -F= '{ printf "Transkribus WER: %.3f\n\n", $2 * 100 }' | \
     tee -a decode/decode.out;
   done;
 done;
