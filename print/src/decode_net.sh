@@ -63,7 +63,7 @@ for p in va te; do
   rm -f tmp.txt
   while read line; do
     id=$(echo "$line" | awk '{ print $1 }' | xargs -I{} basename {} .png);
-    hyp=$(echo "$line" | awk '{for (i=2; i<NF; i++) printf $i " "; print $NF}');
+    hyp=$(echo "$line" | cut -d" " -f2-);
     echo "${id}" "${hyp}" >> tmp.txt;
   done < "$ch";
   mv tmp.txt "$ch";

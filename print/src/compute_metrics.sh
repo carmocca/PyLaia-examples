@@ -25,8 +25,8 @@ for i in char word; do
     # Note: CER is not calculated correctly (github.com/Transkribus/TranskribusErrorRate/issues/4)
     java -cp "$HOME"/software/TranskribusErrorRate/target/TranskribusErrorRate-2.2.7-jar-with-dependencies.jar \
       eu.transkribus.errorrate.HtrErrorTxt \
-      <(awk '{for (i=2; i<NF; i++) printf $i " "; print $NF}' data/lang/${i}/${j}.gt) \
-      <(awk '{for (i=2; i<NF; i++) printf $i " "; print $NF}' decode/${i}/${j}.hyp) \
+      <(cut -d" " -f2- data/lang/${i}/${j}.gt) \
+      <(cut -d" " -f2- decode/${i}/${j}.hyp) \
       --wer | \
     tee -a decode/decode.out;
     echo "" | tee -a decode/decode.out;

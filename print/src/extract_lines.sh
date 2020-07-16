@@ -16,6 +16,7 @@ set_dir=(
   "Testset_NRW_Samples_final"
 );
 set_name=(tr va te);
+
 mkdir -p data/imgs/lines;
 
 for i in $(seq ${#set_dir[@]}); do
