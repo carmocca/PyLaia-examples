@@ -24,10 +24,11 @@ for set in tr va te; do
     # Save original
     cp "${wo}" "data/lang/word/${set}_og.gt"
     # Tokenize
-    awk '{ print $1 }' "${wo}" > tmp_id.txt;
-    cut -d" " -f2- "${wo}" | sed 's/\([.,:;+-=¿?()¡!/\„“—#%¬]\)/ \1 /g' > tmp_gt.txt;
-    paste -d" " tmp_id.txt tmp_gt.txt > "${wo}";
-    rm -f tmp_id.txt tmp_gt.txt;
+    tmpid=$(mktemp); tmpgt=$(mktemp);
+    awk '{ print $1 }' "${wo}" > "${tmpid}";
+    cut -d" " -f2- "${wo}" | sed 's/\([.,:;+-=¿?()¡!/\„“—#%¬]\)/ \1 /g' > "${tmpgt}";
+    paste -d" " "${tmpid}" "${tmpgt}" > "${wo}";
+    rm -f "${tmpid}" "${tmpgt}";
   fi
   # Strip leading, trailing, and contiguous whitespace
   sed -i -r 's/^ +//g; s/ +/ /g; s/ $//g' "${wo}";

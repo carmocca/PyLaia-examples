@@ -60,21 +60,21 @@ for p in va te; do
   # is used. Sort must be done afterwards
 
   # Clean hyp file. Remove paths from ids
-  rm -f tmp.txt
+  tmp=$(mktemp);
   while read line; do
     id=$(echo "$line" | awk '{ print $1 }' | xargs -I{} basename {} .png);
     hyp=$(echo "$line" | cut -d" " -f2-);
-    echo "${id}" "${hyp}" >> tmp.txt;
+    echo "${id}" "${hyp}" >> "${tmp}";
   done < "$ch";
-  mv tmp.txt "$ch";
+  mv "${tmp}" "$ch";
 
   # Sort by ground truth id
-  rm -f tmp.txt;
+  tmp=$(mktemp);
   while read line; do
     id=$(echo "$line" | awk '{ print $1 }');
-    grep -m1 "$id" "$ch" >> tmp.txt
+    grep -m1 "$id" "$ch" >> "${tmp}"
   done < "data/lang/char/${p}.gt";
-  mv tmp.txt "$ch";
+  mv "${tmp}" "$ch";
 
   # Get word-level transcript hypotheses for lines
   gawk '{
