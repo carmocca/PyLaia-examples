@@ -117,14 +117,14 @@ mkdir -p "$exper_path";
 pylaia-htr-create-model \
   1 "data/lang/syms.txt" \
   --adaptive_pooling "$adaptive_pooling" \
-  --cnn_num_features $cnn_num_features \
-  --cnn_kernel_size $cnn_kernel_size \
-  --cnn_stride $cnn_stride \
-  --cnn_dilation $cnn_dilation \
-  --cnn_activations $cnn_activations \
-  --cnn_poolsize $cnn_poolsize \
-  --cnn_dropout $cnn_dropout \
-  --cnn_batchnorm $cnn_batchnorm \
+  --cnn_num_features "$cnn_num_features" \
+  --cnn_kernel_size "$cnn_kernel_size" \
+  --cnn_stride "$cnn_stride" \
+  --cnn_dilation "$cnn_dilation" \
+  --cnn_activations "$cnn_activations" \
+  --cnn_poolsize "$cnn_poolsize" \
+  --cnn_dropout "$cnn_dropout" \
+  --cnn_batchnorm "$cnn_batchnorm" \
   --rnn_units "$rnn_units" \
   --rnn_layers "$rnn_layers" \
   --logging_file "$exper_path/log" \
@@ -136,7 +136,7 @@ pylaia-htr-create-model \
 # Train
 pylaia-htr-train-ctc \
   "data/lang/syms.txt" \
-  $img_directories \
+  "$img_directories" \
   data/lang/char/tr.gt \
   data/lang/char/va.gt \
   --batch_size "$batch_size" \
