@@ -59,3 +59,8 @@ for s in tr va te; do
 done;
 wait_jobs --log_dir "$tmpd"  "${bkg_pids[@]}" || exit 1;
 rm -rf "$tmpd";
+
+for s in tr va te; do
+  img_dir="data/imgs/lines/${s}";
+  find "$img_dir" -type f \( -iname \*.png \) -delete;
+done;
