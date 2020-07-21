@@ -14,7 +14,7 @@ for set in tr va te; do
   wo="data/lang/word/${set}.gt";
 
   # Delete empty images and their transcriptions
-  gawk 'NF <= 1' "${wo}" | xargs -I{} find "data/imgs/lines/${set}" -name {}.png -delete;
+  gawk 'NF <= 1' "${wo}" | xargs -I{} find "data/imgs/lines/${set}" -name {}.jpg -delete;
   gawk -i inplace 'NF > 1' "${wo}";
 
   # Sort inplace by id
@@ -36,19 +36,21 @@ done
 
 # Prepare character-level transcripts.
 mkdir -p "data/lang/char";
-for set in tr va te; do
-  wo="data/lang/word/${set}.gt";
-  ch="data/lang/char/${set}.gt"
-  gawk -v ws="$wspace" '{
-    printf("%s", $1);
-    for(i=2;i<=NF;++i) {
-      for(j=1;j<=length($i);++j) {
-        printf(" %s", substr($i, j, 1));
+for version in "" "_og"; do
+  for set in tr va te; do
+    wo="data/lang/word/${set}${version}.gt";
+    ch="data/lang/char/${set}${version}.gt"
+    gawk -v ws="$wspace" '{
+      printf("%s", $1);
+      for(i=2;i<=NF;++i) {
+        for(j=1;j<=length($i);++j) {
+          printf(" %s", substr($i, j, 1));
+        }
+        if (i < NF) printf(" %s", ws);
       }
-      if (i < NF) printf(" %s", ws);
-    }
-    printf("\n");
-  }' "${wo}" | sort -k1 > "${ch}" || { echo "ERROR: Creating file \"${ch}\"!" >&2; exit 1; }
+      printf("\n");
+    }' "${wo}" | sort -k1 > "${ch}" || { echo "ERROR: Creating file \"${ch}\"!" >&2; exit 1; }
+  done
 done
 
 # Create syms file
