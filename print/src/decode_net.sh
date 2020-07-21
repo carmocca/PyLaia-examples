@@ -70,10 +70,9 @@ for p in va te; do
 
   # Sort by ground truth id
   tmp=$(mktemp);
-  while read line; do
-    id=$(echo "$line" | awk '{ print $1 }');
-    grep -m1 "$id" "$ch" >> "${tmp}"
-  done < "data/lang/char/${p}.gt";
+  awk '{ print $1 }' "data/lang/char/${p}.gt" | while read id; do
+    grep -m1 "$id " "$ch" >> "${tmp}"
+  done;
   mv "${tmp}" "$ch";
 
   # Get word-level transcript hypotheses for lines
