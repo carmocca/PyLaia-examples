@@ -43,7 +43,7 @@ mkdir -p decode/{char,word};
 
 for p in va te; do
   ch="decode/char/${p}.hyp";
-  find data/imgs/lines/$p -type f \( -iname \*.png \) > decode/${p}_list.txt;
+  find data/imgs/lines/$p -type f \( -iname \*.jpg \) > decode/${p}_list.txt;
 
   # Decode lines
   pylaia-htr-decode-ctc \
@@ -62,7 +62,7 @@ for p in va te; do
   # Clean hyp file. Remove paths from ids
   tmp=$(mktemp);
   while read line; do
-    id=$(echo "$line" | awk '{ print $1 }' | xargs -I{} basename {} .png);
+    id=$(echo "$line" | awk '{ print $1 }' | xargs -I{} basename {} .jpg);
     hyp=$(echo "$line" | cut -d" " -f2-);
     echo "${id}" "${hyp}" >> "${tmp}";
   done < "$ch";
