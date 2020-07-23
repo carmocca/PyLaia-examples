@@ -8,30 +8,18 @@ echo "Please, run this script from the experiment top directory!" >&2 && \
 exit 1;
 
 wspace="<space>";
-tokenize=true;
 
 for set in tr va te; do
   wo="data/lang/word/${set}.gt";
-
   # Delete empty images and their transcriptions
   gawk 'NF <= 1' "${wo}" | xargs -I{} find "data/imgs/lines/${set}" -name {}.jpg -delete;
   gawk -i inplace 'NF > 1' "${wo}";
-
   # Sort inplace by id
   sort -k1 "${wo}" -o "${wo}";
-
-  if [ "$tokenize" = true ]; then
-    # Save original
-    cp "${wo}" "data/lang/word/${set}_og.gt"
-    # Tokenize
-    tmpid=$(mktemp); tmpgt=$(mktemp);
-    awk '{ print $1 }' "${wo}" > "${tmpid}";
-    cut -d" " -f2- "${wo}" | sed 's/\([.,:;+-=¿?()¡!/\„“—#%¬]\)/ \1 /g' > "${tmpgt}";
-    paste -d" " "${tmpid}" "${tmpgt}" > "${wo}";
-    rm -f "${tmpid}" "${tmpgt}";
-  fi
-  # Strip leading, trailing, and contiguous whitespace
-  sed -i -r 's/^ +//g; s/ +/ /g; s/ $//g' "${wo}";
+  # Save original
+  cp "${wo}" "data/lang/word/${set}_og.gt"
+  # Tokenize
+  ./src/tokenize.sh "${wo}";
 done
 
 # Prepare character-level transcripts.

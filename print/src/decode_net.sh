@@ -71,7 +71,7 @@ for p in va te; do
   # Sort by ground truth id
   tmp=$(mktemp);
   awk '{ print $1 }' "data/lang/char/${p}.gt" | while read id; do
-    grep -m1 "$id " "$ch" >> "${tmp}"
+    grep -m1 "$id " "$ch" >> "${tmp}";
   done;
   mv "${tmp}" "$ch";
 
@@ -86,4 +86,8 @@ for p in va te; do
     }
     printf("\n");
   }' "$ch" > "decode/word/${p}.hyp";
+
+  # Tokenize output
+  cp decode/word/${p}{,_og}.hyp;
+  ./src/tokenize.sh decode/word/${p}.hyp;
 done;
