@@ -42,3 +42,10 @@ for id in "${ids[@]}"; do
   sed -i "/^${id}/d" data/lang/word/te.gt;
   if grep -q "${id}" data/lang/word/te.gt; then echo "${id} was not correctly removed"; fi
 done
+
+for set in tr va te; do
+  wo="data/lang/word/${set}.gt";
+  # Delete empty images and their transcriptions
+  gawk 'NF <= 1' "${wo}" | xargs -I{} find "data/imgs/lines/${set}" -name {}.png -delete;
+  gawk -i inplace 'NF > 1' "${wo}";
+done

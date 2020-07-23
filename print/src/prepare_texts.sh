@@ -11,11 +11,6 @@ wspace="<space>";
 
 for set in tr va te; do
   wo="data/lang/word/${set}.gt";
-  # Delete empty images and their transcriptions
-  gawk 'NF <= 1' "${wo}" | xargs -I{} find "data/imgs/lines/${set}" -name {}.jpg -delete;
-  gawk -i inplace 'NF > 1' "${wo}";
-  # Sort inplace by id
-  sort -k1 "${wo}" -o "${wo}";
   # Save original
   cp "${wo}" "data/lang/word/${set}_og.gt"
   # Tokenize
@@ -37,7 +32,7 @@ for version in "" "_og"; do
         if (i < NF) printf(" %s", ws);
       }
       printf("\n");
-    }' "${wo}" | sort -k1 > "${ch}" || { echo "ERROR: Creating file \"${ch}\"!" >&2; exit 1; }
+    }' "${wo}" > "${ch}" || { echo "ERROR: Creating file \"${ch}\"!" >&2; exit 1; }
   done
 done
 
