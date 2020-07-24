@@ -11,13 +11,20 @@ data
 │   │   └── {tr,va,te} (.jpg)
 │   └── lines_og (original lines)
 │       └── {tr,va,te} (.png)
-└── lang (ground truth files)
-    ├── char (space separated characters, <space> as delimiter)
-    │   └── {tr,va,te}.gt
-    ├── syms.txt (symbols file)
-    └── word (word transcriptions)
-        ├── {tr,va,te}.gt
-        └── {tr,va,te}_tok.gt (tokenized words)
+├── lang (ground truth files)
+│   ├── char (space separated characters, <space> as delimiter)
+│   │   └── {tr,va,te}.gt
+│   ├── syms.txt (symbols file)
+│   └── word (word transcriptions)
+│       ├── {tr,va,te}.gt
+│       └── {tr,va,te}_tok.gt (tokenized words)
+└── original
+    ├── GT_NRW_Samples_final
+    │   └── page
+    ├── Train_Set_'ONB_Newseye_GT_M1+'
+    │   └── page
+    └── Validation_Set_'ONB_Newseye_GT_M1+'
+        └── page
 
 decode
 ├── char (character hypotheses, <space> as delimiter)
