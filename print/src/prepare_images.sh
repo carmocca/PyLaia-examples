@@ -41,7 +41,7 @@ function process_image () {
 }
 
 # Copy original images
-cp -r "data/imgs/lines" "data/imgs/lines_og";
+cp -r "data/imgs/lines_og" "data/imgs/lines";
 
 tmpd="$(mktemp -d)";
 bkg_pids=();

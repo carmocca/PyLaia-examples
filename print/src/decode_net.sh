@@ -43,7 +43,7 @@ mkdir -p decode/{char,word};
 
 for p in va te; do
   ch="decode/char/${p}.hyp";
-  find data/imgs/lines/$p -type f \( -iname \*.jpg \) > decode/${p}_list.txt;
+  find data/imgs/lines/${p} -type f \( -iname \*.jpg \) > decode/${p}_list.txt;
 
   # Decode lines
   pylaia-htr-decode-ctc \
@@ -54,7 +54,7 @@ for p in va te; do
     --gpu $gpu \
     --batch_size $batch_size \
     --checkpoint "$checkpoint" \
-    --use_letters | sort -V > "$ch";
+    --use_letters > "$ch";
   # Note: The decoding step does not return the output
   # In the same order as the input unless batch size 1
   # is used. Sort must be done afterwards
@@ -87,7 +87,7 @@ for p in va te; do
     printf("\n");
   }' "$ch" > "decode/word/${p}.hyp";
 
-  # Tokenize output
-  cp decode/word/${p}{,_og}.hyp;
-  ./src/tokenize.sh decode/word/${p}.hyp;
+  # Tokenize word hypotheses
+  cp decode/word/${p}{,_tok}.hyp;
+  ./src/tokenize.sh decode/word/${p}_tok.hyp;
 done;

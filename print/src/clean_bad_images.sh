@@ -4,7 +4,7 @@ set -e;
 check=false;
 if [ "$check" = true ]; then
   for set in tr va te; do
-    find data/imgs/lines/${set} | \
+    find data/imgs/lines_og/${set} | \
       xargs -I{} identify -format '%f %h %w\n' {} | \
       gawk '$2 < 8 || $3 < 8 { print $1 ": " $2 "x" $3 }' > bad_${set}.txt;
   done
@@ -27,7 +27,7 @@ declare -a ids=(
   "ONB_aze_19330701_page10_image8.TextRegion_1548144027083_95.line_1548144027301_103"
 )
 for id in "${ids[@]}"; do
-  rm -fv "data/imgs/lines/tr/${id}.*";
+  rm -fv "data/imgs/lines_og/tr/${id}.*";
   sed -i "/^${id}/d" data/lang/word/tr.gt;
   if grep -q "${id}" data/lang/word/tr.gt; then echo "${id} was not correctly removed"; fi
 done
@@ -38,7 +38,7 @@ declare -a ids=(
   "Sample_09.r3.r3l87"
 )
 for id in "${ids[@]}"; do
-  rm -fv "data/imgs/lines/te/${id}.*";
+  rm -fv "data/imgs/lines_og/te/${id}.*";
   sed -i "/^${id}/d" data/lang/word/te.gt;
   if grep -q "${id}" data/lang/word/te.gt; then echo "${id} was not correctly removed"; fi
 done
@@ -46,6 +46,6 @@ done
 for set in tr va te; do
   wo="data/lang/word/${set}.gt";
   # Delete empty images and their transcriptions
-  gawk 'NF <= 1' "${wo}" | xargs -I{} find "data/imgs/lines/${set}" -name {}.png -delete;
+  gawk 'NF <= 1' "${wo}" | xargs -I{} find "data/imgs/lines_og/${set}" -name {}.png -delete;
   gawk -i inplace 'NF > 1' "${wo}";
 done
