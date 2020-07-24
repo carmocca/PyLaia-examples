@@ -9,10 +9,12 @@ SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)";
     exit 1;
 
 batch_size=8;
-gpu=0;
+gpu=1;
 checkpoint="experiment.ckpt.lowest-valid-cer*";
 fixed_height=false;
 exper_path="train";
+imgs_path="data/imgs/lines";
+img_ext=".jpg";
 help_message="
 Usage: ${0##*/} [options]
 
@@ -41,18 +43,18 @@ done;
 
 mkdir -p decode/{char,word};
 
-for p in va te; do
-  ch="decode/char/${p}.hyp";
-  find data/imgs/lines/${p} -type f \( -iname \*.jpg \) > decode/${p}_list.txt;
+for set in va te; do
+  ch="decode/char/${set}.hyp";
+  find ${imgs_path}/${set} -type f \( -iname \*${img_ext} \) > decode/${set}_list.txt;
 
   # Decode lines
   pylaia-htr-decode-ctc \
     data/lang/syms.txt \
-    decode/${p}_list.txt \
-    --train_path $exper_path \
+    decode/${set}_list.txt \
+    --train_path ${exper_path} \
     --join_str=" " \
-    --gpu $gpu \
-    --batch_size $batch_size \
+    --gpu ${gpu} \
+    --batch_size ${batch_size} \
     --checkpoint "$checkpoint" \
     --use_letters > "${ch}";
   # Note: The decoding step does not return the output
@@ -62,7 +64,7 @@ for p in va te; do
   # Clean hyp file. Remove paths from ids
   tmp=$(mktemp);
   while read line; do
-    id=$(echo "$line" | awk '{ print $1 }' | xargs -I{} basename {} .jpg);
+    id=$(echo "$line" | awk '{ print $1 }' | xargs -I{} basename {} ${img_ext});
     nf=$(echo "$line" | awk '{ print NF }');
     if [ "${nf}" -gt 1 ]; then hyp=$(echo "$line" | cut -d" " -f2-); else hyp=""; fi
     echo "${id}" "${hyp}" >> "${tmp}";
@@ -71,7 +73,7 @@ for p in va te; do
 
   # Sort by ground truth id
   tmp=$(mktemp);
-  awk '{ print $1 }' "data/lang/char/${p}.gt" | while read id; do
+  awk '{ print $1 }' "data/lang/char/${set}.gt" | while read id; do
     grep -m1 "$id " "$ch" >> "${tmp}";
   done;
   mv "${tmp}" "${ch}";
@@ -86,9 +88,9 @@ for p in va te; do
         printf("%s", $i);
     }
     printf("\n");
-  }' "${ch}" > "decode/word/${p}.hyp";
+  }' "${ch}" > "decode/word/${set}.hyp";
 
   # Tokenize word hypotheses
-  cp decode/word/${p}{,_tok}.hyp;
-  ./src/tokenize.sh decode/word/${p}_tok.hyp;
+  cp decode/word/${set}{,_tok}.hyp;
+  ./src/tokenize.sh decode/word/${set}_tok.hyp;
 done;
