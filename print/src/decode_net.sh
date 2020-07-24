@@ -54,7 +54,7 @@ for p in va te; do
     --gpu $gpu \
     --batch_size $batch_size \
     --checkpoint "$checkpoint" \
-    --use_letters > "$ch";
+    --use_letters > "${ch}";
   # Note: The decoding step does not return the output
   # In the same order as the input unless batch size 1
   # is used. Sort must be done afterwards
@@ -63,17 +63,18 @@ for p in va te; do
   tmp=$(mktemp);
   while read line; do
     id=$(echo "$line" | awk '{ print $1 }' | xargs -I{} basename {} .jpg);
-    hyp=$(echo "$line" | cut -d" " -f2-);
+    nf=$(echo "$line" | awk '{ print NF }');
+    if [ "${nf}" -gt 1 ]; then hyp=$(echo "$line" | cut -d" " -f2-); else hyp=""; fi
     echo "${id}" "${hyp}" >> "${tmp}";
-  done < "$ch";
-  mv "${tmp}" "$ch";
+  done < "${ch}";
+  mv "${tmp}" "${ch}";
 
   # Sort by ground truth id
   tmp=$(mktemp);
   awk '{ print $1 }' "data/lang/char/${p}.gt" | while read id; do
     grep -m1 "$id " "$ch" >> "${tmp}";
   done;
-  mv "${tmp}" "$ch";
+  mv "${tmp}" "${ch}";
 
   # Get word-level transcript hypotheses for lines
   gawk '{
@@ -85,7 +86,7 @@ for p in va te; do
         printf("%s", $i);
     }
     printf("\n");
-  }' "$ch" > "decode/word/${p}.hyp";
+  }' "${ch}" > "decode/word/${p}.hyp";
 
   # Tokenize word hypotheses
   cp decode/word/${p}{,_tok}.hyp;
