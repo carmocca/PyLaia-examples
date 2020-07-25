@@ -1,14 +1,16 @@
 #!/bin/bash
 set -e;
 
+# Remove images (and their variants) whose
+# width or height is less than 8px
 for dir in lines_og lines lines_h128; do
   for set in tr va te; do
     find data/imgs/${dir}/${set} | \
       xargs -I{} identify -format '%f %h %w\n' {} | \
       gawk '$2 < 8 || $3 < 8 { print $1 }' > bad_${set}.txt;
     cat bad_${set}.txt | while read img; do
-      rm -fv data/imgs/${dir}/${set}/${img};
       id="${img%.*}";
+      rm -fv data/imgs/lines{_og,,_h128}/${set}/${id}\.*;
       sed -i "/^${id}/d" data/lang/word/${set}.gt;
       if grep -q "${id}" data/lang/word/${set}.gt; then echo "${id} was not correctly removed"; fi
     done
