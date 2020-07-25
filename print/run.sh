@@ -8,8 +8,8 @@ cd "$SDIR";
 mkdir -p ./data;
 
 ./src/extract_lines.sh;
-./src/clean_bad_images.sh;
 ./src/prepare_images.sh;
+./src/clean_bad_images.sh;
 ./src/prepare_texts.sh;
 ./src/train.sh;
 ./src/decode_net.sh;
