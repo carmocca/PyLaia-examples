@@ -11,9 +11,9 @@ SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)";
 batch_size=8;
 gpu=1;
 checkpoint="experiment.ckpt.lowest-valid-cer*";
-fixed_height=false;
+fixed_height=true;
 exper_path="train";
-imgs_path="data/imgs/lines";
+imgs_path="data/imgs/lines_h128";
 img_ext=".png";
 help_message="
 Usage: ${0##*/} [options]

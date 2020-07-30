@@ -21,35 +21,35 @@ source "$PWD/../utils/parse_options.inc.sh" || exit 1;
 cfg="$(mktemp)";
 cat <<EOF > "$cfg"
 TextFeatExtractor: {
-  verbose    = false;
+  verbose = false;
   // Whether to do automatic desloping of the text
-  deslope    = true;
+  deslope = false;
   // Whether to do automatic deslanting of the text
-  deslant    = true;
+  deslant = false;
   // Type of feature to extract, either "dotm" or "raw"
-  type       = "raw";
+  type = "raw";
   // Output features format, either "htk", "ascii" or "img"
-  format     = "img";
+  format = "img";
   // Whether to do contrast stretching
-  stretch    = true;
+  stretch = false;
   // Window size in pixels for local enhancement
-  enh_win    = 30;
+  enh_win = 30;
   // Sauvola enhancement parameter
-  enh_prm    = 0.1;
+  enh_prm = 0.1;
   // 3 independent enhancements, each in a color channel
-  //enh_prm   = [ 0.05, 0.2, 0.5 ];
+  //enh_prm = [ 0.05, 0.2, 0.5 ];
   // Normalize image heights
   normheight = 0;
   normxheight = 0;
   // Global line vertical moment normalization
   momentnorm = true;
   // Whether to compute the features parallelograms
-  fpgram     = true;
+  fpgram = true;
   // Whether to compute the features surrounding polygon
-  fcontour   = true;
-  //fcontour_dilate = 0;
+  fcontour = true;
+  fcontour_dilate = 0;
   // Padding in pixels to add to the left and right
-  padding    = 10;
+  padding = 10;
 }
 EOF
 
@@ -69,7 +69,7 @@ function fix_image_height () {
   return 0;
 }
 
-# 1. Clean training text line images with textFeats
+# Clean training text line images with textFeats
 mkdir -p data/imgs/lines/{tr,va,te};
 for set in tr va te; do
   find data/imgs/lines_og/${set} -name "*.png" |
@@ -80,7 +80,7 @@ for set in tr va te; do
     --threads=$(nproc);
 done
 
-# 2. Resize training text line images to a fixed height
+# Resize training text line images to a fixed height
 mkdir -p data/imgs/lines_h${height}/{tr,va,te};
 for set in tr va te; do
   n=0;
