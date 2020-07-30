@@ -14,7 +14,7 @@ checkpoint="experiment.ckpt.lowest-valid-cer*";
 fixed_height=false;
 exper_path="train";
 imgs_path="data/imgs/lines";
-img_ext=".jpg";
+img_ext=".png";
 help_message="
 Usage: ${0##*/} [options]
 

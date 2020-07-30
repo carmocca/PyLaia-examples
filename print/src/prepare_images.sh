@@ -7,60 +7,87 @@ SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)";
 echo "Please, run this script from the experiment top directory!" >&2 && \
 exit 1;
 
-source ../utils/functions_parallel.inc.sh || exit 1;
+export LC_NUMERIC=C;
 
-num_parallel="$(get_num_cores)";
-resize_height=128;
+height=128;
 help_message="
 Usage: ${0##*/} [options]
 
 Options:
-  --nun_parallel  : (type = integer, default = $num_parallel)
-                    Number of parallel processes to process the images.
-  --resize_height : (type = integer, default = $resize_height)
-                    Resize the line and sentence images to this given height.
+  --height : (type = int, default = $height)
 ";
-source ../utils/parse_options.inc.sh || exit 1;
+source "$PWD/../utils/parse_options.inc.sh" || exit 1;
 
+cfg="$(mktemp)";
+cat <<EOF > "$cfg"
+TextFeatExtractor: {
+  verbose    = false;
+  // Whether to do automatic desloping of the text
+  deslope    = true;
+  // Whether to do automatic deslanting of the text
+  deslant    = true;
+  // Type of feature to extract, either "dotm" or "raw"
+  type       = "raw";
+  // Output features format, either "htk", "ascii" or "img"
+  format     = "img";
+  // Whether to do contrast stretching
+  stretch    = true;
+  // Window size in pixels for local enhancement
+  enh_win    = 30;
+  // Sauvola enhancement parameter
+  enh_prm    = 0.1;
+  // 3 independent enhancements, each in a color channel
+  //enh_prm   = [ 0.05, 0.2, 0.5 ];
+  // Normalize image heights
+  normheight = 0;
+  normxheight = 0;
+  // Global line vertical moment normalization
+  momentnorm = true;
+  // Whether to compute the features parallelograms
+  fpgram     = true;
+  // Whether to compute the features surrounding polygon
+  fcontour   = true;
+  //fcontour_dilate = 0;
+  // Padding in pixels to add to the left and right
+  padding    = 10;
+}
+EOF
 
-function process_image () {
-  local bn="$(basename "$1" .png)";
-  # Process image
-  "$HOME"/software/imgtxtenh/build/imgtxtenh -d 118.110 "$1" png:- |
-  convert png:- -deskew 40% \
-    -bordercolor white -border 5 -trim \
-    -bordercolor white -border 20x0 +repage \
-    -strip "${img_dir}/$bn.jpg" ||
-  { echo "ERROR: Processing image $1" >&2 && return 1; }
-  # Resize image to a fixed height, keep aspect ratio.
-  convert "${img_dir}/$bn.jpg" \
-    -resize "x${resize_height}" +repage \
-    -strip "${img_resize_dir}/$bn.jpg" ||
-  { echo "ERROR: Processing image $1" >&2 && return 1; }
+# If image height < fix_height, pad with white.
+# If image height > fix_height, scale.
+function fix_image_height () {
+  [ $# -ne 3 ] && \
+  echo "Usage: fix_image_height <fix_height> <input_img> <output_img>" >&2 && \
+  return 1;
+
+  h=$(identify -format '%h' "$2") || return 1;
+  if [ "$h" -lt "$1" ]; then
+    convert -gravity center -extent "x$1" +repage -strip "$2" "$3" || return 1;
+  else
+    convert -resize "x$1" +repage -strip "$2" "$3" || return 1;
+  fi;
   return 0;
 }
 
-# Copy original images
-cp -r "data/imgs/lines_og" "data/imgs/lines";
+# 1. Clean training text line images with textFeats
+mkdir -p data/imgs/lines/{tr,va,te};
+for set in tr va te; do
+  find data/imgs/lines_og/${set} -name "*.png" |
+  xargs $HOME/software/textFeats/build/textFeats \
+    --cfg="$cfg" \
+    --outdir=data/imgs/lines/${set} \
+    --overwrite=true \
+    --threads=$(nproc);
+done
 
-tmpd="$(mktemp -d)";
-bkg_pids=();
-for s in tr va te; do
-  img_resize_dir="data/imgs/lines_h${resize_height}/${s}";
-  img_dir="data/imgs/lines/${s}";
-  mkdir -p "${img_resize_dir}";
-  # Enhance images with Mauricio's tool, deskew the
-  # line, crop white borders and resize to the given height.
-  for f in $(find "${img_dir}" -name "*.png"); do
-    process_image "$f" &> "$tmpd/${#bkg_pids[@]}" & bkg_pids+=("$!");
-    [ "${#bkg_pids[@]}" -lt "$num_parallel" ] ||
-    { wait_jobs --log_dir "$tmpd" "${bkg_pids[@]}" && bkg_pids=(); } || exit 1;
+# 2. Resize training text line images to a fixed height
+mkdir -p data/imgs/lines_h${height}/{tr,va,te};
+for set in tr va te; do
+  n=0;
+  for f in $(find data/imgs/lines/${set} -name "*.png"); do
+    ( fix_image_height "${height}" data/imgs/lines{,_h128}/${set}/$(basename ${f}) || exit 1; ) &
+    ((++n));
+    [ "$n" -eq "$(nproc)" ] && { wait; n=1; }
   done;
-done;
-wait_jobs --log_dir "$tmpd"  "${bkg_pids[@]}" || exit 1;
-rm -rf "$tmpd";
-
-for s in tr va te; do
-  img_dir="data/imgs/lines/${s}";
-  find "$img_dir" -type f \( -iname \*.png \) -delete;
+  wait;
 done;
