@@ -5,8 +5,8 @@ export LC_NUMERIC=C;
 # Directory where the script is placed.
 SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)";
 [ "$(pwd)/src" != "$SDIR" ] && \
-    echo "Please, run this script from the experiment top directory!" >&2 && \
-    exit 1;
+echo "Please, run this script from the experiment top directory!" >&2 && \
+exit 1;
 
 batch_size=8;
 gpu=1;
@@ -15,22 +15,6 @@ fixed_height=true;
 exper_path="train";
 imgs_path="data/imgs/lines_h128";
 img_ext=".png";
-help_message="
-Usage: ${0##*/} [options]
-
-Options:
-  --batch_size   : (type = integer, default = $batch_size)
-                   Batch size for decoding.
-  --gpu          : (type = integer, default = $gpu)
-                   Select which GPU to use, index starts from 1.
-                   Set to 0 for CPU.
-  --checkpoint   : (type = str, default = $checkpoint)
-                   Suffix of the checkpoint to use, can be a glob pattern.
-  --fixed_height : (type = boolean, default = $fixed_height)
-                   Use a fixed height model.
-";
-source "../utils/parse_options.inc.sh" || exit 1;
-[ $# -ne 0 ] && echo "$help_message" >&2 && exit 1;
 
 if [ $gpu -gt 0 ]; then
   export CUDA_VISIBLE_DEVICES=$((gpu-1));

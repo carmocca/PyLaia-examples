@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e;
 
+# Directory where the script is placed.
+SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)";
+[ "$(pwd)/src" != "$SDIR" ] && \
+echo "Please, run this script from the experiment top directory!" >&2 && \
+exit 1;
+
 # Remove images (and their variants) whose
 # width or height is less than 8px
 for dir in lines_og lines lines_h128; do

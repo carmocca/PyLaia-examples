@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e;
+export LC_NUMERIC=C;
 
 # Directory where the script is placed.
 SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)";
@@ -7,16 +8,7 @@ SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)";
 echo "Please, run this script from the experiment top directory!" >&2 && \
 exit 1;
 
-export LC_NUMERIC=C;
-
 height=128;
-help_message="
-Usage: ${0##*/} [options]
-
-Options:
-  --height : (type = int, default = $height)
-";
-source "$PWD/../utils/parse_options.inc.sh" || exit 1;
 
 cfg="$(mktemp)";
 cat <<EOF > "$cfg"
@@ -69,7 +61,7 @@ function fix_image_height () {
   return 0;
 }
 
-# Clean training text line images with textFeats
+# Clean line images with textFeats
 mkdir -p data/imgs/lines/{tr,va,te};
 for set in tr va te; do
   find data/imgs/lines_og/${set} -name "*.png" |
@@ -80,7 +72,7 @@ for set in tr va te; do
     --threads=$(nproc);
 done
 
-# Resize training text line images to a fixed height
+# Resize line images to a fixed height
 mkdir -p data/imgs/lines_h${height}/{tr,va,te};
 for set in tr va te; do
   n=0;

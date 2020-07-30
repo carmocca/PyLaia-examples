@@ -4,8 +4,8 @@ set -e;
 # Directory where the script is placed.
 SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)";
 [ "$(pwd)/src" != "$SDIR" ] && \
-    echo "Please, run this script from the experiment top directory!" >&2 && \
-    exit 1;
+echo "Please, run this script from the experiment top directory!" >&2 && \
+exit 1;
 
 # Compute CER/WER using compute-wer and TranskribusErrorRate.
 # Note: the second does not match by id, has to be sorted.
