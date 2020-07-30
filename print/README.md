@@ -29,7 +29,6 @@ data
 decode
 ├── char (character hypotheses, <space> as delimiter)
 │   └── {va,te}.hyp
-├── {va,te}_list.txt (lists of images to decode)
 └── word (word hypotheses)
     ├── {va,te}.hyp
     └── {va,te}_tok.hyp (tokenized words)

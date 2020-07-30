@@ -14,7 +14,6 @@ checkpoint="experiment.ckpt.lowest-valid-cer*";
 fixed_height=true;
 exper_path="train";
 imgs_path="data/imgs/lines_h128";
-img_ext=".png";
 
 if [ $gpu -gt 0 ]; then
   export CUDA_VISIBLE_DEVICES=$((gpu-1));
@@ -29,12 +28,11 @@ mkdir -p decode/{char,word};
 
 for set in va te; do
   ch="decode/char/${set}.hyp";
-  find ${imgs_path}/${set} -type f \( -iname \*${img_ext} \) > decode/${set}_list.txt;
-
   # Decode lines
   pylaia-htr-decode-ctc \
     data/lang/syms.txt \
-    decode/${set}_list.txt \
+    "${imgs_path}/${set}" \
+    <(cut -d" " -f1 "data/lang/char/${set}.gt") \
     --train_path ${exper_path} \
     --join_str=" " \
     --gpu ${gpu} \
@@ -48,7 +46,7 @@ for set in va te; do
   # Clean hyp file. Remove paths from ids
   tmp=$(mktemp);
   while read line; do
-    id=$(echo "$line" | awk '{ print $1 }' | xargs -I{} basename {} ${img_ext});
+    id=$(echo "$line" | awk '{ print $1 }' | xargs -I{} basename {} .png);
     nf=$(echo "$line" | awk '{ print NF }');
     if [ "${nf}" -gt 1 ]; then hyp=$(echo "$line" | cut -d" " -f2-); else hyp=""; fi
     echo "${id}" "${hyp}" >> "${tmp}";
