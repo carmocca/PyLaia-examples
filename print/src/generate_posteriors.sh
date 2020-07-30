@@ -9,7 +9,7 @@ imgs_path="$1";
 exper_path="$2";
 output_path="$3";
 
-mkdir -p "${output_path}";
+mkdir -p "${output_path}/post";
 
 if [ $gpu -gt 0 ]; then
   export CUDA_VISIBLE_DEVICES=$((gpu-1));
@@ -34,7 +34,7 @@ done;
 
 for set in te va; do
   # note: post stands for posteriors
-  copy-matrix --verbose 0 \
+  copy-matrix
     "ark:${output_path}/conf_mat.ark" \
     "ark,scp:${output_path}/post/${set}.ark,${output_path}/post/${set}.scp";
 done
