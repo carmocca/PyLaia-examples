@@ -27,11 +27,11 @@ for i in $(seq ${#set_dir[@]}); do
   while read img; do
     echo "Processing ${img}...";
     # Fix contours
-    "$HOME"/software/pageLineExtractor/page_format_tool \
+    page_format_tool \
       -i "$img" \
       -l "$data_dir"/page/"$(basename "${img%.*}")".xml -m FIX;
     # Extract lines
-    "$HOME"/software/pageLineExtractor/page_format_tool \
+    page_format_tool \
       -i "$img" \
       -l "$data_dir"/page/"$(basename "${img%.*}")".xml -m FILE;
       mv -f "$data_dir"/page/*.png "$img_dir";
