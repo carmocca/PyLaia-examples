@@ -9,12 +9,13 @@ exit 1;
 
 # Remove images (and their variants) whose
 # width or height is less than 8px
+tmp="$(mktemp -d)";
 for dir in lines_og lines lines_h128; do
   for set in tr va te; do
     find data/imgs/${dir}/${set} | \
       xargs -I{} identify -format '%f %h %w\n' {} | \
-      gawk '$2 < 8 || $3 < 8 { print $1 }' > bad_${set}.txt;
-    cat bad_${set}.txt | while read img; do
+      gawk '$2 < 8 || $3 < 8 { print $1 }' > ${tmp}/${set}.txt;
+    cat ${tmp}/${set}.txt | while read img; do
       id="${img%.*}";
       rm -fv data/imgs/lines{_og,,_h128}/${set}/${id}\.*;
       sed -i "/^${id}/d" data/lang/word/${set}.gt;
@@ -22,7 +23,7 @@ for dir in lines_og lines lines_h128; do
     done
   done
 done
-rm -f bad_{tr,va,te}.txt;
+rm -rf ${tmp};
 
 for set in tr va te; do
   wo="data/lang/word/${set}.gt";
