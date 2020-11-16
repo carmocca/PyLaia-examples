@@ -4,7 +4,7 @@ The IAM Handwriting Database contains forms of handwritten English text which
 can be used to train and test handwritten text recognizers and to perform
 writer identification and verification experiments.
 
-![Example](a01-122-02.jpg)
+![Example](https://fki.tic.heia-fr.ch/static/img/a01-122-02.jpg)
 
 This folder contains the scripts to reproduce my degree final work results which are directly related to those from the paper
 "Are Multidimensional Recurrent Layers Really Necessary for Handwritten Text Recognition?", by Joan Puigcerver.
@@ -119,23 +119,25 @@ of the paper. Summarizing, the model consists of:
 ./src/train_puigcerver17.sh;
 ```
 
-This script will create several files in the `train` directory. If you are
-continuing a previous experiment, the `--checkpoint` allows choosing a different
-checkpoint than the best validation CER.
+This script will save the model weights (checkpoints) in the `experiment` directory.
+For further customization of the experiment, please have a look at the help message
+of `pylaia-htr-train-ctc` and modify the `*.yaml` configuration files.
 
 __IMPORTANT:__ Be aware that this script may take a considerable amount of time
-to run (7h on a NVIDIA GTX 1080) and GPU memory (8GB). If this is not
-feasible for you, reduce the batch size (the default is 10) by passing
-`--batch_size $your_batch_size` to the script, and/or reduce the early stop
-epochs with `--early_stop_epochs $your_max_stop_epochs` (the default is 20).
+to run (7h on an NVIDIA GTX 1080) and GPU memory (8GB). If this is not
+feasible for you, adapt the training configuration to your environment.
+You can do this by modifying the `batch_size` or `early_stopping_patience` attributes.
+
+You can also run the experiment using multiple GPUs to dramatically reduce the training
+and decoding time (e.g. to almost half using 2 GPUs). To do so, change the `accelerator`
+attribute to `ddp` and set the number of GPUs desired.
 
 ### Step 5. Decode using only the neural network.
 
 Once the training is finished, you can obtain the transcript directly from
 the neural network, using the CTC decoding algorithm. This algorithm simply
-obtains the most likely label on each frame independently and then removes
-repetitions of labels, and finally it removes the instances of the CTC blank
-symbol.
+obtains the most likely label on each frame independently, then removes
+consecutive repeated labels, and finally, removes all CTC blank symbols.
 
 The script `src/decode_net.sh` will use PyLaia to decode the validation and
 test lines. Just type in your console the following command:
@@ -153,5 +155,5 @@ The expected results at this point on the validation and test sets are:
 
 ## Any problem?
 
-If you have any issue reproducing any results, please contact the
-code owners at carlossmocholi@gmail.com or joapuipe@prhlt.upv.es.
+If you have any problem reproducing any results,
+feel free to open a GitHub issue! :heart:

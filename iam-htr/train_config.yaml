@@ -1,0 +1,25 @@
+img_dirs: [data/imgs/lines_h128]
+syms: syms.txt
+tr_txt_table: data/lang/puigcerver/lines/char/tr.txt
+va_txt_table: data/lang/puigcerver/lines/char/va.txt
+common:
+  model_filename: model_h128
+logging:
+  filepath: train.log
+  to_stderr_level: INFO
+  overwrite: true
+optimizer:
+  learning_rate: 0.0003
+  name: RMSProp
+scheduler:
+  active: false
+  monitor: va_cer
+  patience: 10
+data:
+  batch_size: 10
+train:
+  early_stopping_patience: 20
+trainer:
+  accelerator: null
+  gpus: 1
+  weights_summary: full

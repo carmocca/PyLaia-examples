@@ -1,0 +1,9 @@
+common:
+  model_filename: model_h128
+  monitor: va_cer
+data:
+  batch_size: 10
+img_dirs: [data/imgs/lines_h128]
+trainer:
+  accelerator: null
+  gpus: 1
