@@ -128,7 +128,7 @@ to run (7h on an NVIDIA GTX 1080) and GPU memory (8GB). If this is not
 feasible for you, adapt the training configuration to your environment.
 You can do this by modifying the `batch_size` or `early_stopping_patience` attributes.
 
-You can also run the experiment using multiple GPUs to dramatically reduce the training
+You can also run the experiment using multiple GPUs to significantly reduce the training
 and decoding time (e.g. to almost half using 2 GPUs). To do so, change the `accelerator`
 attribute to `ddp` and set the number of GPUs desired.
 
