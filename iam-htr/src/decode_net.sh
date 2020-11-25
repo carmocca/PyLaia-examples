@@ -8,35 +8,9 @@ SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)";
     echo "Please, run this script from the experiment top directory!" >&2 && \
     exit 1;
 
-batch_size=10;
-gpu=1;
-checkpoint="experiment.ckpt.lowest-valid-cer*";
-fixed_height=true;
 lang=puigcerver;
-exper_path=exper/puigcerver17/train;
-help_message="
-Usage: ${0##*/} [options]
 
-Options:
-  --batch_size   : (type = integer, default = $batch_size)
-                   Batch size for decoding.
-  --gpu          : (type = integer, default = $gpu)
-                   Select which GPU to use, index starts from 1.
-                   Set to 0 for CPU.
-  --checkpoint   : (type = str, default = $checkpoint)
-                   Suffix of the checkpoint to use, can be a glob pattern.
-  --fixed_height : (type = boolean, default = $fixed_height)
-                   Use a fixed height model.
-";
-source "../utils/parse_options.inc.sh" || exit 1;
-[ $# -ne 0 ] && echo "$help_message" >&2 && exit 1;
-
-if [ $gpu -gt 0 ]; then
-  export CUDA_VISIBLE_DEVICES=$((gpu-1));
-  gpu=1;
-fi;
-
-for f in data/lang/"$lang"/lines/{char,word}/{te,va}.txt "$exper_path"/{syms_ctc.txt,model}; do
+for f in data/lang/"$lang"/lines/{char,word}/{te,va}.txt; do
   [ ! -s "$f" ] && echo "ERROR: File \"$f\" does not exist!" >&2 && exit 1;
 done;
 
@@ -52,19 +26,14 @@ for p in va te; do
   lines_word="decode/lines/word/${p}.txt";
   forms_char="decode/forms/char/${p}.txt";
   forms_word="decode/forms/word/${p}.txt";
-  imgs_list="data/splits/$lang/${p}.lst";
+  img_list="data/splits/$lang/${p}.lst";
 
   # Decode lines
   pylaia-htr-decode-ctc \
-    "$exper_path"/syms_ctc.txt \
-    data/imgs/lines_h128 \
-    "$imgs_list" \
-    --train_path $exper_path \
-    --join_str=" " \
-    --gpu $gpu \
-    --batch_size $batch_size \
-    --checkpoint $checkpoint \
-    --use_letters | sort -V > "$lines_char";
+    syms.txt \
+    "$img_list" \
+    --config=decode_config.yaml \
+  | sort -V > "$lines_char";
   # Note: The decoding step does not return the output
   # In the same order as the input unless batch size 1
   # is used. Sort must be done afterwards
@@ -116,7 +85,9 @@ if [ $hasComputeWer -eq 1 ]; then
     for j in char word; do
       for k in va te; do
         # Compute CER and WER using Kaldi's compute-wer-bootci
-        compute-wer-bootci --print-args=false\
+        compute-wer-bootci \
+          --print-args=false \
+          --mode=strict \
           "ark:data/lang/$lang/${i}/${j}/${k}.txt" \
           "ark:decode/${i}/${j}/${k}.txt" | \
         awk -v i=$i -v j=$j -v k=$k '{ $1=""; $2=":"; print i"/"j"/"k$0}' | \

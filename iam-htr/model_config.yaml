@@ -1,0 +1,20 @@
+syms: syms.txt
+save_model: true
+adaptive_pooling: avgpool-16
+fixed_input_height: 128
+common:
+  model_filename: model_h128
+crnn:
+  cnn_activation: [LeakyReLU,LeakyReLU,LeakyReLU,LeakyReLU,LeakyReLU]
+  cnn_batchnorm: [false,false,false,false,false]
+  cnn_dilation: [1,1,1,1,1]
+  cnn_dropout: [0,0,0,0,0]
+  cnn_kernel_size: [3,3,3,3,3]
+  cnn_num_features: [16,32,48,64,80]
+  cnn_poolsize: [2,2,2,0,0]
+  cnn_stride: [1,1,1,1,1]
+  rnn_layers: 5
+logging:
+  filepath: model.log
+  overwrite: true
+  to_stderr_level: INFO
