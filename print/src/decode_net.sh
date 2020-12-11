@@ -8,19 +8,7 @@ SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)";
 echo "Please, run this script from the experiment top directory!" >&2 && \
 exit 1;
 
-batch_size=8;
-gpu=1;
-checkpoint="experiment.ckpt.lowest-valid-cer*";
-fixed_height=true;
-exper_path="train";
-imgs_path="data/imgs/lines_h128";
-
-if [ $gpu -gt 0 ]; then
-  export CUDA_VISIBLE_DEVICES=$((gpu-1));
-  gpu=1;
-fi;
-
-for f in data/lang/{char,word}/{te,va}.gt data/lang/syms.txt "$exper_path"/model; do
+for f in data/lang/{char,word}/{te,va}.gt data/lang/syms.txt; do
   [ ! -s "$f" ] && echo "ERROR: File \"$f\" does not exist!" >&2 && exit 1;
 done;
 
@@ -31,17 +19,9 @@ for set in va te; do
   # Decode lines
   pylaia-htr-decode-ctc \
     data/lang/syms.txt \
-    "${imgs_path}/${set}" \
     <(cut -d" " -f1 "data/lang/char/${set}.gt") \
-    --train_path ${exper_path} \
-    --join_str=" " \
-    --gpu ${gpu} \
-    --batch_size ${batch_size} \
-    --checkpoint "$checkpoint" \
-    --use_letters > "${ch}";
-  # Note: The decoding step does not return the output
-  # In the same order as the input unless batch size 1
-  # is used. Sort must be done afterwards
+    --img_dirs=[data/imgs/lines_h128/${set}] \
+    --config=decode_config.yaml > "${ch}";
 
   # Clean hyp file. Remove paths from ids
   tmp=$(mktemp);

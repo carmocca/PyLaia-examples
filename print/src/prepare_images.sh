@@ -11,21 +11,21 @@ exit 1;
 # No height normalization
 mkdir -p data/imgs/lines/{tr,va,te};
 for set in tr va te; do
-  find data/imgs/lines_og/${set} -name "*.png" |
+  find data/imgs/lines_og/${set} -name "*.png" -print0 |
   xargs textFeats \
     --cfg=src/textFeats.cfg \
     --outdir=data/imgs/lines/${set} \
     --overwrite=true \
-    --threads=$(nproc);
+    --threads="$(nproc)";
 done
 
 # 128px height
 mkdir -p data/imgs/lines_h128/{tr,va,te};
 for set in tr va te; do
-  find data/imgs/lines_og/${set} -name "*.png" |
+  find data/imgs/lines_og/${set} -name "*.png" -print0 |
   xargs textFeats \
     --cfg=src/textFeats_h128.cfg \
     --outdir=data/imgs/lines_h128/${set} \
     --overwrite=true \
-    --threads=$(nproc);
+    --threads="$(nproc)";
 done

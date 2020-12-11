@@ -1,0 +1,26 @@
+img_dirs: [data/imgs/lines_h128/tr,data/imgs/lines_h128/va]
+syms: data/lang/syms.txt
+tr_txt_table: data/lang/char/tr.gt
+va_txt_table: data/lang/char/va.gt
+common:
+  model_filename: model_h128
+logging:
+  filepath: train.log
+  to_stderr_level: INFO
+  overwrite: true
+optimizer:
+  learning_rate: 0.001
+  name: RMSProp
+scheduler:
+  active: false
+  monitor: va_cer
+  patience: 5
+data:
+  batch_size: 10
+train:
+  early_stopping_patience: 20
+  augment_training: true
+trainer:
+  accelerator: null
+  gpus: 1
+  weights_summary: full

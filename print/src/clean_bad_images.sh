@@ -12,7 +12,7 @@ exit 1;
 tmp="$(mktemp -d)";
 for dir in lines_og lines lines_h128; do
   for set in tr va te; do
-    find data/imgs/${dir}/${set} | \
+    find data/imgs/${dir}/${set} -print0 | \
       xargs -I{} identify -format '%f %h %w\n' {} | \
       gawk '$2 < 8 || $3 < 8 { print $1 }' > ${tmp}/${set}.txt;
     cat ${tmp}/${set}.txt | while read img; do
